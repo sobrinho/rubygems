@@ -136,7 +136,7 @@ module Bundler
       end
       @unlocking ||= @unlock[:ruby] ||= (!@locked_ruby_version ^ !@ruby_version)
 
-      add_current_platform unless Bundler.frozen_bundle?
+      add_current_platform
 
       converge_path_sources_to_gemspec_sources
       @path_changes = converge_paths
@@ -373,6 +373,8 @@ module Bundler
     end
 
     def ensure_equivalent_gemfile_and_lockfile(explicit_flag = false)
+      validate_platforms!
+
       added =   []
       deleted = []
       changed = []
@@ -422,7 +424,6 @@ module Bundler
 
     def validate_runtime!
       validate_ruby!
-      validate_platforms!
     end
 
     def validate_ruby!
@@ -453,7 +454,7 @@ module Bundler
     def validate_platforms!
       return if current_platform_locked?
 
-      raise ProductionError, "Your bundle only supports platforms #{@platforms.map(&:to_s)} " \
+      raise ProductionError, "Your bundle only supports platforms #{@locked_platforms.map(&:to_s)} " \
         "but your local platform is #{local_platform}. " \
         "Add the current platform to the lockfile with\n`bundle lock --add-platform #{local_platform}` and try again."
     end
@@ -464,7 +465,9 @@ module Bundler
     end
 
     def remove_platform(platform)
-      removed_platform = @platforms.delete(Gem::Platform.new(platform))
+      pl = Gem::Platform.new(platform)
+      removed_platform = @platforms.delete(pl)
+      @locked_platforms.delete(pl)
       @removed_platform ||= removed_platform
       return if removed_platform
       raise InvalidOption, "Unable to remove the platform `#{platform}` since the only platforms are #{@platforms.join ", "}"
@@ -647,13 +650,13 @@ module Bundler
 
     def current_ruby_platform_locked?
       return false unless generic_local_platform_is_ruby?
-      return false if Bundler.settings[:force_ruby_platform] && !@platforms.include?(Gem::Platform::RUBY)
+      return false if Bundler.settings[:force_ruby_platform] && !@locked_platforms.include?(Gem::Platform::RUBY)
 
       current_platform_locked?
     end
 
     def current_platform_locked?
-      @platforms.any? do |bundle_platform|
+      @locked_platforms.any? do |bundle_platform|
         MatchPlatform.platforms_match?(bundle_platform, local_platform)
       end
     end
