@@ -537,11 +537,6 @@ module Bundler
         return
       end
 
-      if Bundler.frozen_bundle?
-        Bundler.ui.error "Cannot write a changed lockfile while frozen."
-        return
-      end
-
       SharedHelpers.filesystem_access(file) do |p|
         File.open(p, "wb") {|f| f.puts(contents) }
       end
