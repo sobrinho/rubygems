@@ -540,8 +540,14 @@ module Bundler
         return
       end
 
-      SharedHelpers.filesystem_access(file) do |p|
-        File.open(p, "wb") {|f| f.puts(contents) }
+      begin
+        SharedHelpers.filesystem_access(file) do |p|
+          File.open(p, "wb") {|f| f.puts(contents) }
+        end
+      rescue Errno::EROFS
+        validate_platforms!
+
+        raise
       end
     end
 
