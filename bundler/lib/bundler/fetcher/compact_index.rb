@@ -12,17 +12,15 @@ module Bundler
         method = instance_method(method_name)
         undef_method(method_name)
         define_method(method_name) do |*args, &blk|
-          begin
-            method.bind(self).call(*args, &blk)
-          rescue NetworkDownError, CompactIndexClient::Updater::MisMatchedChecksumError => e
-            raise HTTPError, e.message
-          rescue AuthenticationRequiredError
-            # Fail since we got a 401 from the server.
-            raise
-          rescue HTTPError => e
-            Bundler.ui.trace(e)
-            nil
-          end
+          method.bind(self).call(*args, &blk)
+        rescue NetworkDownError, CompactIndexClient::Updater::MisMatchedChecksumError => e
+          raise HTTPError, e.message
+        rescue AuthenticationRequiredError
+          # Fail since we got a 401 from the server.
+          raise
+        rescue HTTPError => e
+          Bundler.ui.trace(e)
+          nil
         end
       end
 
@@ -42,30 +40,20 @@ module Bundler
           deps = begin
                    parallel_compact_index_client.dependencies(remaining_gems)
                  rescue TooManyRequestsError
-                   @bundle_worker.stop if @bundle_worker
+                   @bundle_worker&.stop
                    @bundle_worker = nil # reset it.  Not sure if necessary
                    serial_compact_index_client.dependencies(remaining_gems)
                  end
-          next_gems = deps.map {|d| d[3].map(&:first).flatten(1) }.flatten(1).uniq
+          next_gems = deps.flat_map {|d| d[3].flat_map(&:first) }.uniq
           deps.each {|dep| gem_info << dep }
           complete_gems.concat(deps.map(&:first)).uniq!
           remaining_gems = next_gems - complete_gems
         end
-        @bundle_worker.stop if @bundle_worker
+        @bundle_worker&.stop
         @bundle_worker = nil # reset it.  Not sure if necessary
 
         gem_info
       end
-
-      def fetch_spec(spec)
-        spec -= [nil, "ruby", ""]
-        contents = compact_index_client.spec(*spec)
-        return nil if contents.nil?
-        contents.unshift(spec.first)
-        contents[3].map! {|d| Gem::Dependency.new(*d) }
-        EndpointSpecification.new(*contents)
-      end
-      compact_index_request :fetch_spec
 
       def available?
         unless SharedHelpers.md5_available?

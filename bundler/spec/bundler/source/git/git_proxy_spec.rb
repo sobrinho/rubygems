@@ -6,26 +6,31 @@ RSpec.describe Bundler::Source::Git::GitProxy do
   let(:ref) { "HEAD" }
   let(:revision) { nil }
   let(:git_source) { nil }
+  let(:clone_result) { double(Process::Status, :success? => true) }
+  let(:base_clone_args) { ["clone", "--bare", "--no-hardlinks", "--quiet", "--no-tags", "--depth", "1", "--single-branch"] }
   subject { described_class.new(path, uri, ref, revision, git_source) }
 
   context "with configured credentials" do
     it "adds username and password to URI" do
       Bundler.settings.temporary(uri => "u:p") do
-        expect(subject).to receive(:git_retry).with("clone", "https://u:p@github.com/rubygems/rubygems.git", any_args)
+        allow(subject).to receive(:git_local).with("--version").and_return("git version 2.14.0")
+        expect(subject).to receive(:capture).with([*base_clone_args, "--", "https://u:p@github.com/rubygems/rubygems.git", path.to_s], nil).and_return(["", "", clone_result])
         subject.checkout
       end
     end
 
     it "adds username and password to URI for host" do
       Bundler.settings.temporary("github.com" => "u:p") do
-        expect(subject).to receive(:git_retry).with("clone", "https://u:p@github.com/rubygems/rubygems.git", any_args)
+        allow(subject).to receive(:git_local).with("--version").and_return("git version 2.14.0")
+        expect(subject).to receive(:capture).with([*base_clone_args, "--", "https://u:p@github.com/rubygems/rubygems.git", path.to_s], nil).and_return(["", "", clone_result])
         subject.checkout
       end
     end
 
     it "does not add username and password to mismatched URI" do
       Bundler.settings.temporary("https://u:p@github.com/rubygems/rubygems-mismatch.git" => "u:p") do
-        expect(subject).to receive(:git_retry).with("clone", uri, any_args)
+        allow(subject).to receive(:git_local).with("--version").and_return("git version 2.14.0")
+        expect(subject).to receive(:capture).with([*base_clone_args, "--", uri, path.to_s], nil).and_return(["", "", clone_result])
         subject.checkout
       end
     end
@@ -34,7 +39,8 @@ RSpec.describe Bundler::Source::Git::GitProxy do
       Bundler.settings.temporary("github.com" => "u:p") do
         original = "https://orig:info@github.com/rubygems/rubygems.git"
         subject = described_class.new(Pathname("path"), original, "HEAD")
-        expect(subject).to receive(:git_retry).with("clone", original, any_args)
+        allow(subject).to receive(:git_local).with("--version").and_return("git version 2.14.0")
+        expect(subject).to receive(:capture).with([*base_clone_args, "--", original, path.to_s], nil).and_return(["", "", clone_result])
         subject.checkout
       end
     end
@@ -43,7 +49,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
   describe "#version" do
     context "with a normal version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3")
       end
 
@@ -58,7 +64,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
 
     context "with a OSX version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3 (Apple Git-BS)")
       end
 
@@ -73,7 +79,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
 
     context "with a msysgit version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3.msysgit.0")
       end
 
@@ -90,7 +96,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
   describe "#full_version" do
     context "with a normal version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3")
       end
 
@@ -101,7 +107,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
 
     context "with a OSX version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3 (Apple Git-BS)")
       end
 
@@ -112,7 +118,7 @@ RSpec.describe Bundler::Source::Git::GitProxy do
 
     context "with a msysgit version number" do
       before do
-        expect(subject).to receive(:git).with("--version").
+        expect(subject).to receive(:git_local).with("--version").
           and_return("git version 1.2.3.msysgit.0")
       end
 
@@ -122,30 +128,23 @@ RSpec.describe Bundler::Source::Git::GitProxy do
     end
   end
 
-  describe "#copy_to" do
-    let(:cache) { tmpdir("cache_path") }
-    let(:destination) { tmpdir("copy_to_path") }
-    let(:submodules) { false }
+  it "doesn't allow arbitrary code execution through Gemfile uris with a leading dash" do
+    gemfile <<~G
+      gem "poc", git: "-u./pay:load.sh"
+    G
 
-    context "when given a SHA as a revision" do
-      let(:revision) { "abcd" * 10 }
-      let(:command) { ["reset", "--hard", revision] }
-      let(:command_for_display) { "git #{command.shelljoin}" }
+    file = bundled_app("pay:load.sh")
 
-      it "fails gracefully when resetting to the revision fails" do
-        expect(subject).to receive(:git_retry).with("clone", any_args) { destination.mkpath }
-        expect(subject).to receive(:git_retry).with("fetch", any_args, :dir => destination)
-        expect(subject).to receive(:git).with(*command, :dir => destination).and_raise(Bundler::Source::Git::GitCommandError.new(command_for_display, destination))
-        expect(subject).not_to receive(:git)
+    create_file file, <<~RUBY
+      #!/bin/sh
 
-        expect { subject.copy_to(destination, submodules) }.
-          to raise_error(
-            Bundler::Source::Git::MissingGitRevisionError,
-            "Git error: command `#{command_for_display}` in directory #{destination} has failed.\n" \
-            "Revision #{revision} does not exist in the repository #{uri}. Maybe you misspelled it?\n" \
-            "If this error persists you could try removing the cache directory '#{destination}'"
-          )
-      end
-    end
+      touch #{bundled_app("canary")}
+    RUBY
+
+    FileUtils.chmod("+x", file)
+
+    bundle :lock, :raise_on_error => false
+
+    expect(Pathname.new(bundled_app("canary"))).not_to exist
   end
 end

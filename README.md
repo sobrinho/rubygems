@@ -27,9 +27,7 @@ For more information about how to use RubyGems, see our RubyGems basics guide at
 
 ## Requirements
 
-* RubyGems 2.6 supports Ruby 2.4 or lower.
-* RubyGems 2.7 supports Ruby 2.5 or lower.
-* RubyGems 3.0 supports Ruby 2.3 or later.
+* RubyGems supports Ruby 2.6 or later.
 
 ## Installation
 
@@ -64,6 +62,22 @@ To upgrade to the latest RubyGems, run:
 
 See [UPGRADING](UPGRADING.md) for more details and alternative instructions.
 
+## Release policy
+
+RubyGems and Bundler are released in sync, although they do not share their
+major version number. It is planned that also their major version numbers will
+be sync'ed in the future.
+
+The release policy is somewhat similar to the release policy of Ruby itself:
+
+* Frequent patch releases (every 2-4 weeks) including bug fixes, minor
+  enhancements, small features, or even medium sized features declared as
+  experimental for battle testing.
+* Yearly minor releases including bigger features, and minor breaking changes
+  (affecting only edge cases and a very small set of users).
+* Occasional major releases (replacing yearly minors) including major breaking
+  changes.
+
 ## Documentation
 
 RubyGems uses [rdoc](https://github.com/rdoc/rdoc) for documentation. A compiled set of the docs
@@ -79,22 +93,19 @@ creating a new gem, security practices and other resources at https://guides.rub
 Got a bug and you're not sure?  You're sure you have a bug, but don't know
 what to do next?  In any case, let us know about it!  The best place
 for letting the RubyGems team know about bugs or problems you're having is
-[on the RubyGems issues page at GitHub](http://github.com/rubygems/rubygems/issues).
+[on the RubyGems issues page at GitHub](https://github.com/rubygems/rubygems/issues).
 
 ### Bundler Compatibility
 
-See http://bundler.io/compatibility for known issues.
+See https://bundler.io/compatibility for known issues.
 
 ### Supporting
 
-<a href="https://rubytogether.org/"><img src="https://rubytogether.org/images/rubies.svg" width=200></a><br/>
-<a href="https://rubytogether.org/">Ruby Together</a> pays some RubyGems maintainers for their ongoing work. As a grassroots initiative committed to supporting the critical Ruby infrastructure you rely on, Ruby Together is funded entirely by the Ruby community. Contribute today <a href="https://rubytogether.org/developers">as an individual</a> or even better, <a href="https://rubytogether.org/companies">as a company</a>, and ensure that RubyGems, Bundler, and other shared tooling is around for years to come.
+RubyGems is managed by [Ruby Central](https://rubycentral.org), a non-profit organization that supports the Ruby community through projects like this one, as well as [RubyConf](https://rubyconf.org), [RailsConf](https://railsconf.org), and [RubyGems.org](https://rubygems.org). You can support Ruby Central by attending or [sponsoring](sponsors@rubycentral.org) a conference, or by [joining as a supporting member](https://rubycentral.org/#/portal/signup).
 
 ### Contributing
 
 If you'd like to contribute to RubyGems, that's awesome, and we <3 you. Check out our [guide to contributing](CONTRIBUTING.md) for more information.
-
-While some RubyGems contributors are compensated by Ruby Together, the project maintainers make decisions independent of Ruby Together. As a project, we welcome contributions regardless of the author’s affiliation with Ruby Together.
 
 ### Code of Conduct
 

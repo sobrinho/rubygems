@@ -11,7 +11,7 @@ And be sure to [set up your development environment](https://github.com/rubygems
 
 ## Feature Requests
 
-To request substantial changes to Bundler and/or Bundler documentation, please refer to the [README](https://github.com/bundler/rfcs/blob/master/README.md) in the [RFC repository](https://github.com/bundler/rfcs) for instructions.
+To request substantial changes to Bundler and/or Bundler documentation, please refer to the [README](https://github.com/rubygems/rfcs/blob/master/README.md) in the [RFC repository](https://github.com/rubygems/rfcs) for instructions.
 
 ## Contributing to Bundler
 
@@ -25,4 +25,4 @@ Here are the different ways you can start contributing to the Bundler project:
 
 ## Supporting Bundler
 
-[Ruby Together](https://rubytogether.org/) pays some Bundler maintainers for their work, funded directly by the Ruby community. If you'd like to support Bundler with a financial contribution, [become an individual sponsor](https://rubytogether.org/developers#plans). We also welcome financial [contributions from companies](https://rubytogether.org/companies#plans), too! (You can also support us through [Open Collective](https://opencollective.com/rubytogether).)
+RubyGems is managed by [Ruby Central](https://rubycentral.org), a non-profit organization that supports the Ruby community through projects like this one, as well as [RubyConf](https://rubyconf.org), [RailsConf](https://railsconf.org), and [RubyGems.org](https://rubygems.org). You can support Ruby Central by attending or [sponsoring](sponsors@rubycentral.org) a conference, or by [joining as a supporting member](https://rubycentral.org/#/portal/signup).

@@ -12,25 +12,46 @@ To work on Bundler, you'll probably want to do a couple of things:
 
         $ brew install graphviz
 
-* From the rubygems root directory change into the bundler directory:
+* Install development dependencies from the rubygems root directory:
+
+        $ rake setup
+
+* Change into the bundler directory:
 
         $ cd bundler
 
-* Install Bundler's development dependencies:
+* Install Bundler's test dependencies:
 
-        $ bin/rake spec:deps
+        $ bin/rake spec:parallel_deps
 
-* Run the test suite, to make sure things are working:
-
-        $ bin/rake spec
-
-* Optionally, you can run the test suite in parallel:
+* Now you can run the test suite in parallel:
 
         $ bin/parallel_rspec
 
 * Set up a shell alias to run Bundler from your clone, e.g. a Bash alias ([follow these instructions](https://www.moncefbelyamani.com/create-aliases-in-bash-profile-to-assign-shortcuts-for-common-terminal-commands/) for adding aliases to your `~/.bashrc` profile):
 
         $ alias dbundle='ruby /path/to/bundler/repo/spec/support/bundle.rb'
+
+## Jointly developing on Bundler and RubyGems
+
+When developing Bundler features or bug fixes that require changes in RubyGems,
+you can make sure Bundler's test suite picks up those changes by setting the
+`RGV` environment variable to point to the root of the repository, like this:
+
+```
+RGV=.. bin/parallel_rspec
+```
+
+It's a good idea to make sure that your changes always work against the latest
+RubyGems, so setting this variable permanently might be a good idea. You can use
+[direnv](https://direnv.net) for that.
+
+The `RGV` environment variable can also be set to arbitrary RubyGems versions,
+to make sure your changes in Bundler work fine with those versions. For example,
+
+```
+RGV=v3.2.33 bin/parallel_rspec
+```
 
 ## Debugging with `pry`
 

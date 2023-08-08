@@ -129,6 +129,52 @@ RSpec.describe "bundle executable" do
     end
   end
 
+  describe "bundle outdated" do
+    let(:run_command) do
+      bundle "install"
+
+      bundle "outdated #{flags}", :raise_on_error => false
+    end
+
+    before do
+      gemfile <<-G
+        source "#{file_uri_for(gem_repo1)}"
+        gem "rack", '0.9.1'
+      G
+    end
+
+    context "with --groups flag" do
+      let(:flags) { "--groups" }
+
+      it "prints a message when there are outdated gems" do
+        run_command
+
+        expect(out).to include("Gem   Current  Latest  Requested  Groups")
+        expect(out).to include("rack  0.9.1    1.0.0   = 0.9.1    default")
+      end
+    end
+
+    context "with --parseable" do
+      let(:flags) { "--parseable" }
+
+      it "prints a message when there are outdated gems" do
+        run_command
+
+        expect(out).to include("rack (newest 1.0.0, installed 0.9.1, requested = 0.9.1)")
+      end
+    end
+
+    context "with --groups and --parseable" do
+      let(:flags) { "--groups --parseable" }
+
+      it "prints a simplified message when there are outdated gems" do
+        run_command
+
+        expect(out).to include("rack (newest 1.0.0, installed 0.9.1, requested = 0.9.1)")
+      end
+    end
+  end
+
   describe "printing the outdated warning" do
     shared_examples_for "no warning" do
       it "prints no warning" do
@@ -170,7 +216,7 @@ RSpec.describe "bundle executable" do
         bundle "fail", :env => { "BUNDLER_VERSION" => bundler_version }, :raise_on_error => false
         expect(err).to start_with(<<-EOS.strip)
 The latest bundler is #{latest_version}, but you are currently running #{bundler_version}.
-To install the latest version, run `gem install bundler`
+To update to the most recent version, run `bundle update --bundler`
         EOS
       end
 
@@ -195,7 +241,7 @@ To install the latest version, run `gem install bundler`
           bundle "fail", :env => { "BUNDLER_VERSION" => bundler_version }, :raise_on_error => false
           expect(err).to start_with(<<-EOS.strip)
 The latest bundler is #{latest_version}, but you are currently running #{bundler_version}.
-To install the latest version, run `gem install bundler --pre`
+To update to the most recent version, run `bundle update --bundler`
           EOS
         end
       end

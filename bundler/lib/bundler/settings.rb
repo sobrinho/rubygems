@@ -43,9 +43,7 @@ module Bundler
       setup_makes_kernel_gem_public
       silence_deprecations
       silence_root_warning
-      suppress_install_using_messages
       update_requires_all_flag
-      use_gem_version_promoter_for_major_updates
     ].freeze
 
     NUMBER_KEYS = %w[
@@ -57,6 +55,7 @@ module Bundler
     ].freeze
 
     ARRAY_KEYS = %w[
+      only
       with
       without
     ].freeze
@@ -75,6 +74,7 @@ module Bundler
       shebang
       system_bindir
       trust-policy
+      version
     ].freeze
 
     DEFAULT_CONFIG = {
@@ -84,6 +84,7 @@ module Bundler
       "BUNDLE_REDIRECT" => 5,
       "BUNDLE_RETRY" => 3,
       "BUNDLE_TIMEOUT" => 10,
+      "BUNDLE_VERSION" => "lockfile",
     }.freeze
 
     def initialize(root = nil)
@@ -226,7 +227,9 @@ module Bundler
         return Path.new(path, system_path)
       end
 
-      Path.new(nil, false)
+      path = "vendor/bundle" if self[:deployment]
+
+      Path.new(path, false)
     end
 
     Path = Struct.new(:explicit_path, :system_path) do
@@ -274,12 +277,6 @@ module Bundler
         raise InvalidOption,
           "Using a custom path while using system gems is unsupported.\n#{path.join("\n")}\n#{system_path.join("\n")}\n#{disable_shared_gems.join("\n")}"
       end
-    end
-
-    def allow_sudo?
-      key = key_for(:path)
-      path_configured = @temporary.key?(key) || @local_config.key?(key)
-      !path_configured
     end
 
     def ignore_config?
@@ -366,7 +363,7 @@ module Bundler
 
     def to_array(value)
       return [] unless value
-      value.split(":").map(&:to_sym)
+      value.tr(" ", ":").split(":").map(&:to_sym)
     end
 
     def array_to_s(array)
@@ -391,8 +388,7 @@ module Bundler
       return unless file
       SharedHelpers.filesystem_access(file) do |p|
         FileUtils.mkdir_p(p.dirname)
-        require_relative "yaml_serializer"
-        p.open("w") {|f| f.write(YAMLSerializer.dump(hash)) }
+        p.open("w") {|f| f.write(serializer_class.dump(hash)) }
       end
     end
 
@@ -454,8 +450,7 @@ module Bundler
       SharedHelpers.filesystem_access(config_file, :read) do |file|
         valid_file = file.exist? && !file.size.zero?
         return {} unless valid_file
-        require_relative "yaml_serializer"
-        YAMLSerializer.load(file.read).inject({}) do |config, (k, v)|
+        serializer_class.load(file.read).inject({}) do |config, (k, v)|
           new_k = k
 
           if k.include?("-")
@@ -472,6 +467,15 @@ module Bundler
       end
     end
 
+    def serializer_class
+      require "rubygems/yaml_serializer"
+      Gem::YAMLSerializer
+    rescue LoadError
+      # TODO: Remove this when RubyGems 3.4 is EOL
+      require_relative "yaml_serializer"
+      YAMLSerializer
+    end
+
     PER_URI_OPTIONS = %w[
       fallback_timeout
     ].freeze
@@ -486,7 +490,7 @@ module Bundler
       /ix.freeze
 
     def self.key_for(key)
-      key = normalize_uri(key).to_s if key.is_a?(String) && /https?:/ =~ key
+      key = normalize_uri(key).to_s if key.is_a?(String) && key.start_with?("http", "mirror.http")
       key = key.to_s.gsub(".", "__").gsub("-", "___").upcase
       "BUNDLE_#{key}"
     end
@@ -500,7 +504,7 @@ module Bundler
         uri = $2
         suffix = $3
       end
-      uri = "#{uri}/" unless uri.end_with?("/")
+      uri = URINormalizer.normalize_suffix(uri)
       require_relative "vendored_uri"
       uri = Bundler::URI(uri)
       unless uri.absolute?

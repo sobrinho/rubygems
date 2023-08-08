@@ -4,7 +4,7 @@ require "bundler/settings"
 require "openssl"
 
 RSpec.describe Bundler::Env do
-  let(:git_proxy_stub) { Bundler::Source::Git::GitProxy.new(nil, nil, nil) }
+  let(:git_proxy_stub) { Bundler::Source::Git::GitProxy.new(nil, nil) }
 
   describe "#report" do
     it "prints the environment" do
@@ -34,8 +34,6 @@ RSpec.describe Bundler::Env do
       end
 
       it "prints user home" do
-        skip "needs to use a valid HOME" if Gem.win_platform? && RUBY_VERSION < "2.6.0"
-
         with_clear_paths("HOME", "/a/b/c") do
           out = described_class.report
           expect(out).to include("User Home   /a/b/c")
@@ -43,8 +41,6 @@ RSpec.describe Bundler::Env do
       end
 
       it "prints user path" do
-        skip "needs to use a valid HOME" if Gem.win_platform? && RUBY_VERSION < "2.6.0"
-
         with_clear_paths("HOME", "/a/b/c") do
           allow(File).to receive(:exist?)
           allow(File).to receive(:exist?).with("/a/b/c/.gem").and_return(true)
@@ -143,7 +139,7 @@ RSpec.describe Bundler::Env do
 
     context "when Gemfile contains a gemspec and print_gemspecs is true" do
       let(:gemspec) do
-        strip_whitespace(<<-GEMSPEC)
+        <<~GEMSPEC
           Gem::Specification.new do |gem|
             gem.name = "foo"
             gem.author = "Fumofu"
@@ -182,7 +178,7 @@ RSpec.describe Bundler::Env do
         allow(Bundler::SharedHelpers).to receive(:pwd).and_return(bundled_app)
 
         output = described_class.report(:print_gemspecs => true)
-        expect(output).to include(strip_whitespace(<<-ENV))
+        expect(output).to include(<<~ENV)
           ## Gemfile
 
           ### Gemfile
@@ -221,7 +217,7 @@ RSpec.describe Bundler::Env do
 
     context "when the git version is OS specific" do
       it "includes OS specific information with the version number" do
-        expect(git_proxy_stub).to receive(:git).with("--version").
+        expect(git_proxy_stub).to receive(:git_local).with("--version").
           and_return("git version 1.2.3 (Apple Git-BS)")
         expect(Bundler::Source::Git::GitProxy).to receive(:new).and_return(git_proxy_stub)
 

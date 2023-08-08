@@ -161,6 +161,8 @@ class Bundler::Thor
     # to the block you provide. The path is set back to the previous path when
     # the method exits.
     #
+    # Returns the value yielded by the block.
+    #
     # ==== Parameters
     # dir<String>:: the directory to move to.
     # config<Hash>:: give :verbose => true to log and use padding.
@@ -173,22 +175,24 @@ class Bundler::Thor
       shell.padding += 1 if verbose
       @destination_stack.push File.expand_path(dir, destination_root)
 
-      # If the directory doesnt exist and we're not pretending
+      # If the directory doesn't exist and we're not pretending
       if !File.exist?(destination_root) && !pretend
         require "fileutils"
         FileUtils.mkdir_p(destination_root)
       end
 
+      result = nil
       if pretend
         # In pretend mode, just yield down to the block
-        block.arity == 1 ? yield(destination_root) : yield
+        result = block.arity == 1 ? yield(destination_root) : yield
       else
         require "fileutils"
-        FileUtils.cd(destination_root) { block.arity == 1 ? yield(destination_root) : yield }
+        FileUtils.cd(destination_root) { result = block.arity == 1 ? yield(destination_root) : yield }
       end
 
       @destination_stack.pop
       shell.padding -= 1 if verbose
+      result
     end
 
     # Goes to the root and execute the given block.
@@ -219,9 +223,10 @@ class Bundler::Thor
 
       contents = if is_uri
         require "open-uri"
-        URI.open(path, "Accept" => "application/x-thor-template", &:read)
+        # for ruby 2.1-2.4
+        URI.send(:open, path, "Accept" => "application/x-thor-template", &:read)
       else
-        open(path, &:read)
+        File.open(path, &:read)
       end
 
       instance_eval(contents, path)

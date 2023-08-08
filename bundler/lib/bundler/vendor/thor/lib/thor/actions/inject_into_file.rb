@@ -21,7 +21,7 @@ class Bundler::Thor
     #     gems.split(" ").map{ |gem| "  config.gem :#{gem}" }.join("\n")
     #   end
     #
-    WARNINGS = { unchanged_no_flag: 'File unchanged! The supplied flag value not found!' }
+    WARNINGS = { unchanged_no_flag: 'File unchanged! Either the supplied flag value not found or the content has already been inserted!' }
 
     def insert_into_file(destination, *args, &block)
       data = block_given? ? block : args.shift
@@ -106,12 +106,11 @@ class Bundler::Thor
       # Adds the content to the file.
       #
       def replace!(regexp, string, force)
-        return if pretend?
         content = File.read(destination)
         if force || !content.include?(replacement)
           success = content.gsub!(regexp, string)
 
-          File.open(destination, "wb") { |file| file.write(content) }
+          File.open(destination, "wb") { |file| file.write(content) } unless pretend?
           success
         end
       end

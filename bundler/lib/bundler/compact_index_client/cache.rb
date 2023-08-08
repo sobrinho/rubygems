@@ -68,21 +68,12 @@ module Bundler
 
       def info_path(name)
         name = name.to_s
-        if name =~ /[^a-z0-9_-]/
+        if /[^a-z0-9_-]/.match?(name)
           name += "-#{SharedHelpers.digest(:MD5).hexdigest(name).downcase}"
           info_roots.last.join(name)
         else
           info_roots.first.join(name)
         end
-      end
-
-      def specific_dependency(name, version, platform)
-        pattern = [version, platform].compact.join("-")
-        return nil if pattern.empty?
-
-        gem_lines = info_path(name).read
-        gem_line = gem_lines[/^#{Regexp.escape(pattern)}\b.*/, 0]
-        gem_line ? parse_gem(gem_line) : nil
       end
 
       private
