@@ -6,6 +6,8 @@ require_relative "path"
 
 module Spec
   module Helpers
+    extend self
+
     include Spec::Path
 
     def reset!
@@ -317,6 +319,10 @@ module Spec
       end
     end
 
+    def install_dev_bundler
+      system_gems :bundler, path: Path.pristine_system_gem_path
+    end
+
     def install_gem(path, install_dir, default = false)
       raise "OMG `#{path}` does not exist!" unless File.exist?(path)
 
@@ -327,6 +333,8 @@ module Spec
     end
 
     def with_built_bundler(version = nil, &block)
+      require_relative "builders"
+
       Builders::BundlerBuilder.new(self, "bundler", version)._build(&block)
     end
 
@@ -526,7 +534,7 @@ module Spec
     def require_rack
       # need to hack, so we can require rack
       old_gem_home = ENV["GEM_HOME"]
-      ENV["GEM_HOME"] = Spec::Path.base_system_gem_path.to_s
+      ENV["GEM_HOME"] = Path.base_system_gem_path.to_s
       require "rack"
       ENV["GEM_HOME"] = old_gem_home
     end

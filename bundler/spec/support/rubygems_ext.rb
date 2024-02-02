@@ -74,6 +74,8 @@ module Spec
       install_gems(test_gemfile, Path.base_system_gems.to_s)
       install_gems(rubocop_gemfile, Path.rubocop_gems.to_s)
       install_gems(standard_gemfile, Path.standard_gems.to_s)
+
+      Helpers.install_dev_bundler
     end
 
     def check_source_control_changes(success_message:, error_message:)
