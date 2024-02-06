@@ -436,6 +436,8 @@ module Spec
         @context.replace_version_file(@version, dir: build_path)
         @context.replace_required_ruby_version(@required_ruby_version, dir: build_path) if @required_ruby_version
 
+        require_relative "build_metadata"
+
         Spec::BuildMetadata.write_build_metadata(dir: build_path)
 
         @context.gem_command "build #{@context.relative_gemspec}", dir: build_path

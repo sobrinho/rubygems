@@ -77,6 +77,8 @@ module Spec
       install_gems(rubocop_gemfile, Path.rubocop_gems.to_s)
       install_gems(standard_gemfile, Path.standard_gems.to_s)
 
+      require_relative "helpers"
+
       Helpers.install_dev_bundler
     end
 
