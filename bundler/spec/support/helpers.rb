@@ -189,7 +189,7 @@ module Spec
 
       require "open3"
       require "shellwords"
-      Open3.popen3(env, *cmd.shellsplit, chdir: dir) do |stdin, stdout, stderr, wait_thr|
+      Open3.popen3(env, *cmd.shellsplit, chdir: dir.to_s) do |stdin, stdout, stderr, wait_thr|
         yield stdin, stdout, wait_thr if block_given?
         stdin.close
 
