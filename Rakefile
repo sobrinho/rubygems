@@ -533,7 +533,9 @@ end
 namespace :spec do
   desc "Ensure spec dependencies are installed"
   task deps: "dev:deps" do
-    Spec::Rubygems.install_test_deps
+    chdir("bundler") do
+      Spec::Rubygems.install_test_deps
+    end
   end
 
   desc "Ensure spec dependencies for running in parallel are installed"
