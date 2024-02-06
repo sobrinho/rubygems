@@ -8,7 +8,7 @@ module Spec
   module Helpers
     extend self
 
-    include Spec::Path
+    include Path
 
     def reset!
       Dir.glob("#{tmp}/{gems/*,*}", File::FNM_DOTMATCH).each do |dir|
@@ -96,7 +96,7 @@ module Spec
         end
       end
       if artifice
-        requires << "#{Path.spec_dir}/support/artifice/#{artifice}.rb"
+        requires << "#{spec_dir}/support/artifice/#{artifice}.rb"
       end
 
       load_path = []
@@ -150,7 +150,7 @@ module Spec
 
       requires = options.delete(:requires) || []
 
-      hax_path = "#{Path.spec_dir}/support/hax.rb"
+      hax_path = "#{spec_dir}/support/hax.rb"
 
       # For specs that need to ignore the default Bundler gem, load hax before
       # anything else since other stuff may actually load bundler and not skip
@@ -170,7 +170,7 @@ module Spec
       env = options[:env] || {}
       env["RUBYOPT"] = opt_add(opt_add("-r#{spec_dir}/support/hax.rb", env["RUBYOPT"]), ENV["RUBYOPT"])
       options[:env] = env
-      sys_exec("#{Path.gem_bin} #{command}", options)
+      sys_exec("#{gem_bin} #{command}", options)
     end
 
     def rake
@@ -320,7 +320,9 @@ module Spec
     end
 
     def install_dev_bundler
-      system_gems :bundler, path: Path.pristine_system_gem_path
+      extend Path
+
+      system_gems :bundler, path: pristine_system_gem_path
     end
 
     def install_gem(path, install_dir, default = false)
@@ -534,7 +536,7 @@ module Spec
     def require_rack
       # need to hack, so we can require rack
       old_gem_home = ENV["GEM_HOME"]
-      ENV["GEM_HOME"] = Path.base_system_gem_path.to_s
+      ENV["GEM_HOME"] = base_system_gem_path.to_s
       require "rack"
       ENV["GEM_HOME"] = old_gem_home
     end

@@ -2,9 +2,12 @@
 
 require "bundler/shared_helpers"
 require "shellwords"
+require_relative "path"
 
 module Spec
   module Builders
+    include Path
+
     def self.constantize(name)
       name.delete("-").upcase
     end
@@ -22,7 +25,7 @@ module Spec
     end
 
     def build_repo1
-      rake_path = Dir["#{Path.base_system_gems}/**/rake*.gem"].first
+      rake_path = Dir["#{base_system_gems}/**/rake*.gem"].first
 
       build_repo gem_repo1 do
         FileUtils.cp rake_path, "#{gem_repo1}/gems/"
@@ -240,12 +243,12 @@ module Spec
     end
 
     def check_test_gems!
-      rake_path = Dir["#{Path.base_system_gems}/**/rake*.gem"].first
+      rake_path = Dir["#{base_system_gems}/**/rake*.gem"].first
 
       if rake_path.nil?
-        FileUtils.rm_rf(Path.base_system_gems)
+        FileUtils.rm_rf(base_system_gems)
         Spec::Rubygems.install_test_deps
-        rake_path = Dir["#{Path.base_system_gems}/**/rake*.gem"].first
+        rake_path = Dir["#{base_system_gems}/**/rake*.gem"].first
       end
 
       if rake_path.nil?
@@ -261,9 +264,9 @@ module Spec
       @_build_path = "#{path}/gems"
       @_build_repo = File.basename(path)
       yield
-      with_gem_path_as Path.base_system_gem_path do
-        Dir[Spec::Path.base_system_gem_path.join("gems/rubygems-generate_index*/lib")].first ||
-          raise("Could not find rubygems-generate_index lib directory in #{Spec::Path.base_system_gem_path}")
+      with_gem_path_as base_system_gem_path do
+        Dir[base_system_gem_path.join("gems/rubygems-generate_index*/lib")].first ||
+          raise("Could not find rubygems-generate_index lib directory in #{base_system_gem_path}")
 
         command = "generate_index"
         command += " --no-compact" if !build_compact_index && gem_command(command + " --help").include?("--[no-]compact")
