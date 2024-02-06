@@ -42,7 +42,7 @@ jobs:
         uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
         with:
           distribution: temurin
-          java-version: 19.0.2
+          java-version: 21.0.2
         if: "!startsWith(matrix.os.name, 'ubuntu')"
       - name: Prepare dependencies
         run: |
