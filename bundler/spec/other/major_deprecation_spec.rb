@@ -473,7 +473,7 @@ RSpec.describe "major deprecations" do
             rack (0.9.1)
 
         PLATFORMS
-          #{lockfile_platforms}
+          ruby
 
         DEPENDENCIES
           rack!
