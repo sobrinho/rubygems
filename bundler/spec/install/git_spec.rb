@@ -6,7 +6,7 @@ RSpec.describe "bundle install" do
       build_git "foo", "1.0", path: lib_path("foo")
 
       install_gemfile <<-G, verbose: true
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         gem "foo", :git => "#{file_uri_for(lib_path("foo"))}"
       G
 
@@ -18,7 +18,7 @@ RSpec.describe "bundle install" do
       build_git "foo", "1.0", path: lib_path("foo"), default_branch: "main"
 
       install_gemfile <<-G, verbose: true
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         gem "foo", :git => "#{file_uri_for(lib_path("foo"))}"
       G
 
@@ -36,7 +36,7 @@ RSpec.describe "bundle install" do
       update_git "foo", "3.0", path: lib_path("foo"), gemspec: true
 
       install_gemfile <<-G, verbose: true
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         gem "foo", :git => "#{file_uri_for(lib_path("foo"))}", :ref => "main~2"
       G
 
@@ -54,7 +54,7 @@ RSpec.describe "bundle install" do
       revision = build_git("foo").ref_for("HEAD")
 
       gemfile <<-G
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}", :group => :development
       G
 
@@ -87,7 +87,7 @@ RSpec.describe "bundle install" do
       end
 
       install_gemfile <<-G
-        source "#{file_uri_for(gem_repo2)}"
+        source "https://gem.repo2"
         gem "foo", :git => "#{file_uri_for(lib_path("gems"))}", :glob => "foo/*.gemspec"
         gem "zebra", :git => "#{file_uri_for(lib_path("gems"))}", :glob => "zebra/*.gemspec"
       G
@@ -112,7 +112,7 @@ RSpec.describe "bundle install" do
       other_ref = other.ref_for("HEAD")
 
       gemfile <<-G
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
 
         gem "test", git: #{test.path.to_s.inspect}
         gem "other", ref: #{other_ref.inspect}, git: #{other.path.to_s.inspect}
@@ -133,7 +133,7 @@ RSpec.describe "bundle install" do
             other (1.0.0)
 
         GEM
-          remote: #{file_uri_for(gem_repo1)}/
+          remote: https://gem.repo1/
           specs:
 
         PLATFORMS
@@ -178,7 +178,7 @@ RSpec.describe "bundle install" do
       bundle "config set path vendor/bundle"
       bundle "config set clean true"
       install_gemfile <<-G, verbose: true
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         gem "foo", :git => "#{file_uri_for(lib_path("foo"))}"
       G
 

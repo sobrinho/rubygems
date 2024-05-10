@@ -40,9 +40,9 @@ RSpec.describe "bundler plugin uninstall" do
     allow(Bundler::SharedHelpers).to receive(:find_gemfile).and_return(bundled_app_gemfile)
 
     install_gemfile <<-G
-      source '#{file_uri_for(gem_repo2)}'
+      source 'https://gem.repo2'
       plugin 'path_plugin', :path => "#{path}"
-      gem 'rack', '1.0.0'
+      gem 'myrack', '1.0.0'
     G
 
     plugin_should_be_installed("path_plugin")

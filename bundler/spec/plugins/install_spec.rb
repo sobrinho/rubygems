@@ -257,9 +257,9 @@ RSpec.describe "bundler plugin install" do
 
     it "installs plugins listed in gemfile" do
       gemfile <<-G
-        source '#{file_uri_for(gem_repo2)}'
+        source 'https://gem.repo2'
         plugin 'foo'
-        gem 'rack', "1.0.0"
+        gem 'myrack', "1.0.0"
       G
 
       bundle "install"
@@ -268,7 +268,7 @@ RSpec.describe "bundler plugin install" do
 
       expect(out).to include("Bundle complete!")
 
-      expect(the_bundle).to include_gems("rack 1.0.0")
+      expect(the_bundle).to include_gems("myrack 1.0.0")
       plugin_should_be_installed("foo")
     end
 
@@ -278,7 +278,7 @@ RSpec.describe "bundler plugin install" do
       end
 
       gemfile <<-G
-        source '#{file_uri_for(gem_repo2)}'
+        source 'https://gem.repo2'
         plugin 'foo', "1.0"
       G
 
@@ -297,7 +297,7 @@ RSpec.describe "bundler plugin install" do
       end
 
       install_gemfile <<-G
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         plugin 'ga-plugin', :git => "#{lib_path("ga-plugin-1.0")}"
       G
 
@@ -311,7 +311,7 @@ RSpec.describe "bundler plugin install" do
       end
 
       install_gemfile <<-G
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         plugin 'ga-plugin', :path => "#{lib_path("ga-plugin-1.0")}"
       G
 
@@ -326,7 +326,7 @@ RSpec.describe "bundler plugin install" do
 
       path = lib_path("ga-plugin-1.0").relative_path_from(bundled_app)
       install_gemfile <<-G
-        source "#{file_uri_for(gem_repo1)}"
+        source "https://gem.repo1"
         plugin 'ga-plugin', :path => "#{path}"
       G
 
@@ -337,22 +337,22 @@ RSpec.describe "bundler plugin install" do
     context "in deployment mode" do
       it "installs plugins" do
         install_gemfile <<-G
-          source '#{file_uri_for(gem_repo2)}'
-          gem 'rack', "1.0.0"
+          source 'https://gem.repo2'
+          gem 'myrack', "1.0.0"
         G
 
         bundle "config set --local deployment true"
         install_gemfile <<-G
-          source '#{file_uri_for(gem_repo2)}'
+          source 'https://gem.repo2'
           plugin 'foo'
-          gem 'rack', "1.0.0"
+          gem 'myrack', "1.0.0"
         G
 
         expect(out).to include("Installed plugin foo")
 
         expect(out).to include("Bundle complete!")
 
-        expect(the_bundle).to include_gems("rack 1.0.0")
+        expect(the_bundle).to include_gems("myrack 1.0.0")
         plugin_should_be_installed("foo")
       end
     end
@@ -401,7 +401,7 @@ RSpec.describe "bundler plugin install" do
         end
 
         # inside the app
-        gemfile "source '#{file_uri_for(gem_repo2)}'\nplugin 'fubar'"
+        gemfile "source 'https://gem.repo2'\nplugin 'fubar'"
         bundle "install"
 
         update_repo2 do

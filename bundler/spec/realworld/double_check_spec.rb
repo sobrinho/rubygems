@@ -20,7 +20,7 @@ RSpec.describe "double checking sources", realworld: true do
         s.summary     = ""
         s.description = ""
         s.author      = ""
-        s.add_dependency "rack", "~> 2.0.0"
+        s.add_dependency "myrack", "~> 2.0.0"
       end
     RUBY
 

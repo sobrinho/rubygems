@@ -14,9 +14,9 @@ RSpec.describe "Self management", rubygems: ">= 3.3.0.dev", realworld: true do
       build_repo2
 
       gemfile <<-G
-        source "#{file_uri_for(gem_repo2)}"
+        source "https://gem.repo2"
 
-        gem "rack"
+        gem "myrack"
       G
     end
 
@@ -141,15 +141,15 @@ RSpec.describe "Self management", rubygems: ">= 3.3.0.dev", realworld: true do
     def lockfile_bundled_with(version)
       lockfile <<~L
         GEM
-          remote: #{file_uri_for(gem_repo2)}/
+          remote: https://gem.repo2/
           specs:
-            rack (1.0.0)
+            myrack (1.0.0)
 
         PLATFORMS
           #{lockfile_platforms}
 
         DEPENDENCIES
-          rack
+          myrack
 
         BUNDLED WITH
            #{version}
