@@ -120,9 +120,11 @@ RSpec.describe "bundle binstubs <gem>" do
               puts specs.map(&:full_name).sort.inspect
             R
           end
+
+          build_bundler locked_bundler_version
         end
-        install_gemfile <<-G
-          source "#{file_uri_for(gem_repo2)}"
+        install_gemfile <<-G, artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
+          source "https://gems.repo2"
           gem "rack"
           gem "prints_loaded_gems"
         G
@@ -130,9 +132,11 @@ RSpec.describe "bundle binstubs <gem>" do
       end
 
       let(:system_bundler_version) { Bundler::VERSION }
+      let(:locked_bundler_version) { nil }
+      let(:lockfile_content) { lockfile.gsub(system_bundler_version, locked_bundler_version) }
 
       it "runs bundler" do
-        bundle "install --verbose", bundle_bin: "bin/bundle"
+        bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index"
         expect(out).to include %(Using bundler #{system_bundler_version}\n)
       end
 
@@ -153,9 +157,11 @@ RSpec.describe "bundle binstubs <gem>" do
       end
 
       context "when a lockfile exists with a locked bundler version" do
+        let(:locked_bundler_version) { "999.999" }
+
         context "and the version is newer" do
           before do
-            lockfile lockfile.gsub(system_bundler_version, "999.999")
+            lockfile lockfile_content
           end
 
           it "runs the correct version of bundler" do
@@ -169,7 +175,7 @@ RSpec.describe "bundle binstubs <gem>" do
         context "and the version is newer when given `gems.rb` and `gems.locked`" do
           before do
             gemfile bundled_app("gems.rb"), gemfile
-            lockfile bundled_app("gems.locked"), lockfile.gsub(system_bundler_version, "999.999")
+            lockfile bundled_app("gems.locked"), lockfile_content
           end
 
           it "runs the correct version of bundler" do
@@ -183,9 +189,10 @@ RSpec.describe "bundle binstubs <gem>" do
 
         context "and the version is older and a different major" do
           let(:system_bundler_version) { "55" }
+          let(:locked_bundler_version) { "44" }
 
           before do
-            lockfile lockfile.gsub(/BUNDLED WITH\n   .*$/m, "BUNDLED WITH\n   44.0")
+            lockfile lockfile_content
           end
 
           it "runs the correct version of bundler" do
@@ -198,10 +205,11 @@ RSpec.describe "bundle binstubs <gem>" do
 
         context "and the version is older and a different major when given `gems.rb` and `gems.locked`" do
           let(:system_bundler_version) { "55" }
+          let(:locked_bundler_version) { "44" }
 
           before do
             gemfile bundled_app("gems.rb"), gemfile
-            lockfile bundled_app("gems.locked"), lockfile.gsub(/BUNDLED WITH\n   .*$/m, "BUNDLED WITH\n   44.0")
+            lockfile bundled_app("gems.locked"), lockfile_content
           end
 
           it "runs the correct version of bundler" do
@@ -214,13 +222,14 @@ RSpec.describe "bundle binstubs <gem>" do
 
         context "and the version is older and the same major" do
           let(:system_bundler_version) { "2.999.999" }
+          let(:locked_bundler_version) { "2.3.0" }
 
           before do
-            lockfile lockfile.gsub(/BUNDLED WITH\n   .*$/m, "BUNDLED WITH\n   2.3.0")
+            lockfile lockfile_content
           end
 
           it "installs and runs the exact version of bundler", rubygems: ">= 3.3.0.dev" do
-            bundle "install --verbose", bundle_bin: "bin/bundle", artifice: nil
+            bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
             expect(exitstatus).not_to eq(42)
             expect(out).to include("Bundler 2.999.999 is running, but your lockfile was generated with 2.3.0. Installing Bundler 2.3.0 and restarting using that version.")
             expect(out).to include("Using bundler 2.3.0")
@@ -238,9 +247,10 @@ RSpec.describe "bundle binstubs <gem>" do
 
         context "and the version is a pre-releaser" do
           let(:system_bundler_version) { "55" }
+          let(:locked_bundler_version) { "2.12.0.a" }
 
           before do
-            lockfile lockfile.gsub(/BUNDLED WITH\n   .*$/m, "BUNDLED WITH\n   2.12.0.a")
+            lockfile lockfile_content
           end
 
           it "runs the correct version of bundler when the version is a pre-release" do
@@ -254,7 +264,7 @@ RSpec.describe "bundle binstubs <gem>" do
 
       context "when update --bundler is called" do
         it "calls through to the latest bundler version" do
-          bundle "update --bundler --verbose", bundle_bin: "bin/bundle", artifice: nil
+          bundle "update --bundler --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
           using_bundler_line = /Using bundler ([\w\.]+)\n/.match(out)
           expect(using_bundler_line).to_not be_nil
           latest_version = using_bundler_line[1]
@@ -272,7 +282,7 @@ RSpec.describe "bundle binstubs <gem>" do
       context "without a lockfile" do
         it "falls back to the latest installed bundler" do
           FileUtils.rm bundled_app_lock
-          bundle "install --verbose", bundle_bin: "bin/bundle"
+          bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
           expect(out).to include "Using bundler #{system_bundler_version}\n"
         end
       end
