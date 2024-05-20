@@ -1623,8 +1623,8 @@ RSpec.describe "bundle install with gems on multiple sources" do
         build_gem "myrack"
       end
 
-      install_gemfile <<-G, artifice: "compact_index", raise_on_error: false
-        source "https://gem.repo1"
+      install_gemfile <<-G, raise_on_error: false
+        source "https://global.source"
         source "https://gem.repo4" do
           gem "depends_on_myrack"
         end

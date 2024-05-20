@@ -123,7 +123,7 @@ RSpec.describe "bundle binstubs <gem>" do
 
           build_bundler locked_bundler_version
         end
-        install_gemfile <<-G, artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
+        install_gemfile <<-G
           source "https://gem.repo2"
           gem "myrack"
           gem "prints_loaded_gems"
@@ -136,7 +136,7 @@ RSpec.describe "bundle binstubs <gem>" do
       let(:lockfile_content) { lockfile.gsub(system_bundler_version, locked_bundler_version) }
 
       it "runs bundler" do
-        bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index"
+        bundle "install --verbose", bundle_bin: "bin/bundle"
         expect(out).to include %(Using bundler #{system_bundler_version}\n)
       end
 
@@ -229,7 +229,7 @@ RSpec.describe "bundle binstubs <gem>" do
           end
 
           it "installs and runs the exact version of bundler", rubygems: ">= 3.3.0.dev" do
-            bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
+            bundle "install --verbose", bundle_bin: "bin/bundle"
             expect(exitstatus).not_to eq(42)
             expect(out).to include("Bundler 2.999.999 is running, but your lockfile was generated with 2.3.0. Installing Bundler 2.3.0 and restarting using that version.")
             expect(out).to include("Using bundler 2.3.0")
@@ -264,7 +264,7 @@ RSpec.describe "bundle binstubs <gem>" do
 
       context "when update --bundler is called" do
         it "calls through to the latest bundler version" do
-          bundle "update --bundler --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
+          bundle "update --bundler --verbose", bundle_bin: "bin/bundle"
           using_bundler_line = /Using bundler ([\w\.]+)\n/.match(out)
           expect(using_bundler_line).to_not be_nil
           latest_version = using_bundler_line[1]
@@ -282,7 +282,7 @@ RSpec.describe "bundle binstubs <gem>" do
       context "without a lockfile" do
         it "falls back to the latest installed bundler" do
           FileUtils.rm bundled_app_lock
-          bundle "install --verbose", bundle_bin: "bin/bundle", artifice: "compact_index", env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo2.to_s }
+          bundle "install --verbose", bundle_bin: "bin/bundle"
           expect(out).to include "Using bundler #{system_bundler_version}\n"
         end
       end
