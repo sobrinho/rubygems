@@ -70,8 +70,9 @@ module Bundler
       configured_gem_home = ENV["GEM_HOME"]
       configured_gem_path = ENV["GEM_PATH"]
 
-      cmd = [$PROGRAM_NAME, *ARGV]
-      cmd.unshift(Gem.ruby) unless File.executable?($PROGRAM_NAME)
+      bundle_bin_path = ENV["BUNDLE_BIN_PATH"] || $PROGRAM_NAME
+      cmd = [*Shellwords.shellsplit(bundle_bin_path), *ARGV]
+      cmd.unshift(Gem.ruby) unless File.executable?(cmd.first)
 
       Bundler.with_original_env do
         Kernel.exec(
