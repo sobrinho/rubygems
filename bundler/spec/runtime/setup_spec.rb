@@ -1367,7 +1367,7 @@ end
         gem "test", path: "#{bundled_app("test")}"
       G
 
-      ruby <<-RUBY
+      ruby <<-RUBY, artifice: nil
         require "bundler/setup"
         puts defined?(URI) || "undefined"
         require "uri"

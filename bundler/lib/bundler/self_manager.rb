@@ -71,6 +71,7 @@ module Bundler
       configured_gem_path = ENV["GEM_PATH"]
 
       bundle_bin_path = ENV["BUNDLE_BIN_PATH"] || $PROGRAM_NAME
+      require "shellwords"
       cmd = [*Shellwords.shellsplit(bundle_bin_path), *ARGV]
       cmd.unshift(Gem.ruby) unless File.executable?(cmd.first)
 
