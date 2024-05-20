@@ -532,7 +532,7 @@ RSpec.describe "bundle install with gem sources" do
 
         gemspec
 
-        gem "activesupport", :git => "#{file_uri_for(lib_path("activesupport"))}"
+        gem "activesupport", :git => "#{lib_path("activesupport")}"
       G
 
       expect(err).to be_empty
@@ -542,7 +542,7 @@ RSpec.describe "bundle install with gem sources" do
       install_gemfile <<~G
         source "https://gem.repo4"
 
-        gem "activesupport", :git => "#{file_uri_for(lib_path("activesupport"))}"
+        gem "activesupport", :git => "#{lib_path("activesupport")}"
 
         gemspec
       G
@@ -1416,7 +1416,7 @@ RSpec.describe "bundle install with gem sources" do
     it "shows a proper error" do
       lockfile <<~L
         GEM
-          remote: #{file_uri_for(gem_repo1)}/
+          remote: https://gem.repo1/
           specs:
 
         PLATFORMS
@@ -1428,7 +1428,7 @@ RSpec.describe "bundle install with gem sources" do
            9.99.8
       L
 
-      install_gemfile "source \"#{file_uri_for(gem_repo1)}\"", env: { "BUNDLER_VERSION" => "9.99.8" }, raise_on_error: false
+      install_gemfile "source \"https://gem.repo1\"", env: { "BUNDLER_VERSION" => "9.99.8" }, raise_on_error: false
 
       expect(err).not_to include("ERROR REPORT TEMPLATE")
       expect(err).to include("The running version of Bundler (9.99.9) does not match the version of the specification installed for it (9.99.8)")

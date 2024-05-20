@@ -246,7 +246,7 @@ RSpec.describe "bundle install with git sources" do
     it "works when a tag that does not look like a commit hash is used as the value of :ref" do
       build_git "foo"
       @remote = build_git("bar", bare: true)
-      update_git "foo", remote: file_uri_for(@remote.path)
+      update_git "foo", remote: @remote.path
       update_git "foo", push: "main"
 
       install_gemfile <<-G
@@ -1115,7 +1115,7 @@ RSpec.describe "bundle install with git sources" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "valim", :git => "#{file_uri_for(lib_path("valim-1.0"))}"
+        gem "valim", :git => "#{lib_path("valim-1.0")}"
       G
 
       old_revision = revision_for(lib_path("valim-1.0"))
@@ -1141,13 +1141,13 @@ RSpec.describe "bundle install with git sources" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}", :ref => "#{revision}"
+        gem "foo", :git => "#{lib_path("foo-1.0")}", :ref => "#{revision}"
       G
       expect(out).to_not match(/Revision.*does not exist/)
 
       install_gemfile <<-G, raise_on_error: false
         source "https://gem.repo1"
-        gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}", :ref => "deadbeef"
+        gem "foo", :git => "#{lib_path("foo-1.0")}", :ref => "deadbeef"
       G
       expect(err).to include("Revision deadbeef does not exist in the repository")
     end
@@ -1157,7 +1157,7 @@ RSpec.describe "bundle install with git sources" do
 
       install_gemfile <<-G, env: { "LANG" => "en" }, raise_on_error: false
         source "https://gem.repo1"
-        gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}", :branch => "deadbeef"
+        gem "foo", :git => "#{lib_path("foo-1.0")}", :branch => "deadbeef"
       G
 
       expect(err).to include("Revision deadbeef does not exist in the repository")

@@ -600,7 +600,7 @@ RSpec.describe "the lockfile format" do
       s.add_dependency "orm_adapter"
     end
 
-    update_git "ckeditor", path: lib_path("ckeditor"), remote: file_uri_for(@remote.path)
+    update_git "ckeditor", path: lib_path("ckeditor"), remote: @remote.path
     update_git "ckeditor", path: lib_path("ckeditor"), tag: "v4.0.7"
     old_git = update_git "ckeditor", path: lib_path("ckeditor"), push: "v4.0.7"
 

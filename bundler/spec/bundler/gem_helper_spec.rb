@@ -286,7 +286,7 @@ RSpec.describe Bundler::GemHelper do
         let(:repo) { build_git("foo", bare: true) }
 
         before do
-          sys_exec("git remote add origin #{file_uri_for(repo.path)}", dir: app_path)
+          sys_exec("git remote add origin #{repo.path}", dir: app_path)
           sys_exec('git commit -a -m "initial commit"', dir: app_path)
         end
 

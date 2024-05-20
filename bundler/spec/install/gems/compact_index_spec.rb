@@ -95,7 +95,7 @@ RSpec.describe "compact index api" do
 
     gemfile <<-G
       source "#{source_uri}"
-      git "#{file_uri_for(lib_path("foo-1.0"))}" do
+      git "#{lib_path("foo-1.0")}" do
         gem 'foo'
       end
     G
@@ -113,7 +113,7 @@ RSpec.describe "compact index api" do
 
     gemfile <<-G
       source "#{source_uri}"
-      gem 'foo', :git => "#{file_uri_for(lib_path("foo-1.0"))}"
+      gem 'foo', :git => "#{lib_path("foo-1.0")}"
     G
 
     bundle :install, artifice: "compact_index"
@@ -128,7 +128,7 @@ RSpec.describe "compact index api" do
     build_git "foo"
     gemfile <<-G
       source "#{source_uri}"
-      gem 'foo', :git => "#{file_uri_for(lib_path("foo-1.0"))}"
+      gem 'foo', :git => "#{lib_path("foo-1.0")}"
     G
 
     bundle "install", artifice: "compact_index"

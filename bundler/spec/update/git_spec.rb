@@ -30,7 +30,7 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "rails", :git => "#{file_uri_for(lib_path("rails"))}"
+        gem "rails", :git => "#{lib_path("rails")}"
       G
 
       bundle "update rails"
@@ -65,7 +65,7 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "foo", :git => "#{file_uri_for(lib_path("foo"))}"
+        gem "foo", :git => "#{lib_path("foo")}"
         gem "bar"
       G
 
@@ -84,25 +84,25 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "foo", "1.0", :git => "#{file_uri_for(lib_path("foo_one"))}"
+        gem "foo", "1.0", :git => "#{lib_path("foo_one")}"
       G
 
       FileUtils.rm_rf lib_path("foo_one")
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "foo", "1.0", :git => "#{file_uri_for(lib_path("foo_two"))}"
+        gem "foo", "1.0", :git => "#{lib_path("foo_two")}"
       G
 
       expect(err).to be_empty
-      expect(out).to include("Fetching #{file_uri_for(lib_path)}/foo_two")
+      expect(out).to include("Fetching #{lib_path}/foo_two")
       expect(out).to include("Bundle complete!")
     end
 
     it "fetches tags from the remote" do
       build_git "foo"
       @remote = build_git("bar", bare: true)
-      update_git "foo", remote: file_uri_for(@remote.path)
+      update_git "foo", remote: @remote.path
       update_git "foo", push: "main"
 
       install_gemfile <<-G
@@ -196,7 +196,7 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}"
+        gem "foo", :git => "#{lib_path("foo-1.0")}"
       G
 
       lib_path("foo-1.0").join(".git").rmtree
@@ -215,7 +215,7 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "myrack", :git => "#{file_uri_for(lib_path("myrack-0.8"))}", :branch => "main"
+        gem "myrack", :git => "#{lib_path("myrack-0.8")}", :branch => "main"
       G
 
       bundle %(config set local.myrack #{lib_path("local-myrack")})
@@ -228,13 +228,13 @@ RSpec.describe "bundle update" do
 
       install_gemfile <<-G
         source "https://gem.repo1"
-        gem "rails", :git => "#{file_uri_for(lib_path("rails"))}"
+        gem "rails", :git => "#{lib_path("rails")}"
       G
 
       update_git "rails", "3.0", path: lib_path("rails"), gemspec: true
 
       bundle "update", all: true
-      expect(out).to include("Using rails 3.0 (was 2.3.2) from #{file_uri_for(lib_path("rails"))} (at main@#{revision_for(lib_path("rails"))[0..6]})")
+      expect(out).to include("Using rails 3.0 (was 2.3.2) from #{lib_path("rails")} (at main@#{revision_for(lib_path("rails"))[0..6]})")
     end
   end
 

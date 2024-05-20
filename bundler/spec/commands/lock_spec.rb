@@ -389,13 +389,13 @@ RSpec.describe "bundle lock" do
 
     install_gemfile <<-G
       source "https://gem.repo1"
-      gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}"
+      gem "foo", :git => "#{lib_path("foo-1.0")}"
     G
 
     # Change uri format to end with "/" and reinstall
     install_gemfile <<-G, verbose: true
       source "https://gem.repo1"
-      gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}/"
+      gem "foo", :git => "#{lib_path("foo-1.0")}/"
     G
 
     expect(out).to include("using resolution from the lockfile")
@@ -408,12 +408,12 @@ RSpec.describe "bundle lock" do
     gemfile <<-G
       source "https://gem.repo1"
       gem "rake"
-      gem "foo", :git => "#{file_uri_for(lib_path("foo-1.0"))}", :branch => "deadbeef"
+      gem "foo", :git => "#{lib_path("foo-1.0")}", :branch => "deadbeef"
     G
 
     lockfile <<~L
       GIT
-        remote: #{file_uri_for(lib_path("foo-1.0"))}
+        remote: #{lib_path("foo-1.0")}
         revision: #{ref}
         branch: deadbeef
         specs:

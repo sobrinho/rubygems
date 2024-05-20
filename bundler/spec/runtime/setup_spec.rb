@@ -1383,7 +1383,7 @@ end
         build_gem "json", default_json_version
       end
 
-      gemfile "source \"#{file_uri_for(gem_repo2)}\"; gem 'json'"
+      gemfile "source \"https://gem.repo2\"; gem 'json'"
 
       ruby <<-RUBY
         require "bundler/setup"
