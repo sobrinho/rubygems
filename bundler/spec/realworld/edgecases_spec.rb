@@ -29,7 +29,7 @@ RSpec.describe "real world edgecases", realworld: true do
 
       gem 'rails', '~> 5.0'
       gem 'capybara', '~> 2.2.0'
-      gem 'myrack-cache', '1.2.0' # last version that works on Ruby 1.9
+      gem 'rack-cache', '1.2.0' # last version that works on Ruby 1.9
     G
     bundle :lock
     expect(lockfile).to include(rubygems_version("rails", "~> 5.0"))
@@ -43,7 +43,7 @@ RSpec.describe "real world edgecases", realworld: true do
       gem "sass-rails"
       gem "rails", "~> 5"
       gem "gxapi_rails", "< 0.1.0" # 0.1.0 was released way after the test was written
-      gem 'myrack-cache', '1.2.0' # last version that works on Ruby 1.9
+      gem 'rack-cache', '1.2.0' # last version that works on Ruby 1.9
     G
     bundle :lock
     expect(lockfile).to include("gxapi_rails (0.0.6)")
@@ -87,8 +87,8 @@ RSpec.describe "real world edgecases", realworld: true do
           actionpack (4.2.7.1)
             actionview (= 4.2.7.1)
             activesupport (= 4.2.7.1)
-            myrack (~> 1.6)
-            myrack-test (~> 0.6.2)
+            rack (~> 1.6)
+            rack-test (~> 0.6.2)
             rails-dom-testing (~> 1.0, >= 1.0.5)
             rails-html-sanitizer (~> 1.0, >= 1.0.2)
           actionview (4.2.7.1)
@@ -145,9 +145,9 @@ RSpec.describe "real world edgecases", realworld: true do
             mime-types
             mimemagic (~> 0.3.0)
           pkg-config (1.1.7)
-          myrack (1.6.4)
-          myrack-test (0.6.3)
-            myrack (>= 1.0)
+          rack (1.6.4)
+          rack-test (0.6.3)
+            rack (>= 1.0)
           rails (4.2.7.1)
             actionmailer (= 4.2.7.1)
             actionpack (= 4.2.7.1)
@@ -175,7 +175,7 @@ RSpec.describe "real world edgecases", realworld: true do
           rake (11.3.0)
           sprockets (3.7.0)
             concurrent-ruby (~> 1.0)
-            myrack (> 1, < 3)
+            rack (> 1, < 3)
           sprockets-rails (3.2.0)
             actionpack (>= 4.0)
             activesupport (>= 4.0)
@@ -339,7 +339,7 @@ RSpec.describe "real world edgecases", realworld: true do
       gem "rb-readline"
       gem "re2"
       gem "redis"
-      gem "redis-myrack"
+      gem "redis-rack"
       gem "rest-client"
       gem "rmagick"
       gem "rpam2"
