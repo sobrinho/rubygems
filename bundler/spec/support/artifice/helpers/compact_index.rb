@@ -71,7 +71,7 @@ class CompactIndexAPI < Endpoint
             spec_index = gem_repo.join(filename)
             next [] unless File.exist?(spec_index)
 
-            Marshal.load(File.open(spec_index).read).map do |name, version, platform|
+            Marshal.load(File.binread(spec_index)).map do |name, version, platform|
               load_spec(name, version, platform, gem_repo)
             end
           end.flatten
