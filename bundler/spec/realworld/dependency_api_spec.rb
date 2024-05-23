@@ -2,7 +2,7 @@
 
 require_relative "../support/silent_logger"
 
-RSpec.describe "gemcutter's dependency API", realworld: true do
+RSpec.describe "gemcutter's dependency API" do
   context "when Gemcutter API takes too long to respond" do
     before do
       require_rack
@@ -34,7 +34,7 @@ RSpec.describe "gemcutter's dependency API", realworld: true do
     end
 
     it "times out and falls back on the modern index" do
-      install_gemfile <<-G, artifice: nil
+      install_gemfile <<-G, artifice: nil, env: { "BUNDLER_SPEC_GEM_REPO" => gem_repo1.to_s }
         source "#{@server_uri}"
         gem "rack"
       G
