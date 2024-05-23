@@ -108,7 +108,7 @@ RSpec.describe "bundle exec" do
           2.1.4
     L
 
-    bundle "exec bundle cache", env: { "BUNDLER_VERSION" => Bundler::VERSION }
+    bundle "exec bundle cache", env: { "BUNDLER_VERSION" => Bundler::VERSION }, preserve_ruby_flags: true
 
     expect(out).to include("Updating files in vendor/cache")
   end
