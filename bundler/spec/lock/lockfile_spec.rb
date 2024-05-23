@@ -84,12 +84,18 @@ RSpec.describe "the lockfile format" do
     G
   end
 
-  it "does not update the lockfile's bundler version if nothing changed during bundle install, but uses the locked version", rubygems: ">= 3.3.0.a", realworld: true do
+  it "does not update the lockfile's bundler version if nothing changed during bundle install, but uses the locked version", rubygems: ">= 3.3.0.a" do
     version = "2.3.0"
+
+    build_repo4 do
+      build_gem "myrack", "1.0.0"
+
+      build_bundler version
+    end
 
     lockfile <<-L
       GEM
-        remote: https://gem.repo2/
+        remote: https://gem.repo4/
         specs:
           myrack (1.0.0)
 
@@ -103,8 +109,8 @@ RSpec.describe "the lockfile format" do
          #{version}
     L
 
-    install_gemfile <<-G, verbose: true, artifice: "vcr"
-      source "https://gem.repo2"
+    install_gemfile <<-G, verbose: true, preserve_ruby_flags: true
+      source "https://gem.repo4"
 
       gem "myrack"
     G
@@ -114,7 +120,7 @@ RSpec.describe "the lockfile format" do
 
     expect(lockfile).to eq <<~G
       GEM
-        remote: https://gem.repo2/
+        remote: https://gem.repo4/
         specs:
           myrack (1.0.0)
 
@@ -132,13 +138,19 @@ RSpec.describe "the lockfile format" do
   it "does not update the lockfile's bundler version if nothing changed during bundle install, and uses the latest version", rubygems: "< 3.3.0.a" do
     version = "#{Bundler::VERSION.split(".").first}.0.0.a"
 
+    build_repo4 do
+      build_gem "myrack", "1.0.0"
+
+      build_bundler version
+    end
+
     checksums = checksums_section do |c|
-      c.checksum(gem_repo2, "myrack", "1.0.0")
+      c.checksum(gem_repo4, "myrack", "1.0.0")
     end
 
     lockfile <<-L
       GEM
-        remote: https://gem.repo2/
+        remote: https://gem.repo4/
         specs:
           myrack (1.0.0)
 
@@ -153,7 +165,7 @@ RSpec.describe "the lockfile format" do
     L
 
     install_gemfile <<-G, verbose: true
-      source "https://gem.repo2"
+      source "https://gem.repo4"
 
       gem "myrack"
     G
@@ -163,7 +175,7 @@ RSpec.describe "the lockfile format" do
 
     expect(lockfile).to eq <<~G
       GEM
-        remote: https://gem.repo2/
+        remote: https://gem.repo4/
         specs:
           myrack (1.0.0)
 
